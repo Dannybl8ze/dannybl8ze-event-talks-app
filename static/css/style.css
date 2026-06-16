@@ -1283,3 +1283,35 @@ body {
     background-color: #ffffff;
     border-color: rgba(99, 102, 241, 0.3);
 }
+
+/* Smooth theme transitions */
+body, .sidebar, .main-header, .note-card, .composer-section, .composer-card, .composer-preview-info, .editor-container, .category-btn, #search-input {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease !important;
+}
+
+/* Search Term Highlighting */
+.search-highlight {
+    background-color: rgba(245, 158, 11, 0.3);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+:root[data-theme="light"] .search-highlight {
+    background-color: rgba(245, 158, 11, 0.25);
+}
+
+/* Pulsing New Update Badge */
+.badge-new-pulse {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: pulse 1.5s infinite;
+    margin-left: 8px;
+    display: inline-block;
+}

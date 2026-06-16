@@ -6,6 +6,7 @@ let activeCategory = 'All';
 let searchQuery = '';
 let includeLink = true;
 let activeHashtags = ['#BigQuery', '#GoogleCloud'];
+let userDrafts = {}; // Session cache for custom user edits on notes cards
 
 // DOM Elements
 const elements = {
@@ -48,6 +49,7 @@ const elements = {
     btnAddLink: document.getElementById('btn-add-link'),
     btnCopyTweet: document.getElementById('btn-copy-tweet'),
     btnPublishTweet: document.getElementById('btn-publish-tweet'),
+    btnPublishLinkedIn: document.getElementById('btn-publish-linkedin'),
     helperChips: document.querySelectorAll('.helper-chip:not(.link-chip)'),
     toastContainer: document.getElementById('toast-container')
 };
@@ -75,11 +77,12 @@ function setupCircularProgress() {
 
 // Bind Event Listeners
 function bindEvents() {
-    // Refresh buttons
+    // Refresh & Sharing buttons
     elements.refreshBtn.addEventListener('click', () => fetchReleaseNotes(true));
     elements.errorRetryBtn.addEventListener('click', () => fetchReleaseNotes(true));
     elements.exportCsvBtn.addEventListener('click', exportToCSV);
     elements.themeToggleBtn.addEventListener('click', toggleTheme);
+    elements.btnPublishLinkedIn.addEventListener('click', publishToLinkedIn);
     elements.emptyResetBtn.addEventListener('click', clearSearchAndFilters);
     
     // Search input
@@ -142,6 +145,11 @@ async function fetchReleaseNotes(force = false) {
             // Apply filtering and render
             applyFiltersAndRender();
             
+            // Auto-select first card on first load if nothing is selected
+            if (filteredNotes.length > 0 && !selectedNote) {
+                selectNoteCard(filteredNotes[0]);
+            }
+            
             if (force) {
                 showToast("Feed refreshed successfully", "success");
             }
@@ -196,10 +204,18 @@ function renderNotes() {
         // Add badges mapping
         const badgeClass = note.type.toLowerCase();
         
+        // Check if this update corresponds to the latest date (pulsing New badge)
+        const isLatest = releaseNotes.length > 0 && note.date === releaseNotes[0].date;
+        const newBadgeHtml = isLatest ? `<span class="badge-new-pulse">New</span>` : '';
+        
+        // Apply search highlights on HTML content
+        const highlightedHtml = highlightSearchText(note.html, searchQuery);
+        
         card.innerHTML = `
             <div class="note-card-header">
                 <div class="note-card-meta">
                     <span class="badge ${badgeClass}">${note.type}</span>
+                    ${newBadgeHtml}
                     <span class="note-date">${note.date}</span>
                 </div>
                 <a href="${note.link}" target="_blank" class="note-link-icon" title="View official release notes" onclick="event.stopPropagation();">
@@ -207,7 +223,7 @@ function renderNotes() {
                 </a>
             </div>
             <div class="note-body">
-                ${note.html}
+                ${highlightedHtml}
             </div>
             <div class="note-card-actions">
                 <button class="btn-icon-text copy-card-btn" title="Copy update text">
@@ -275,9 +291,17 @@ function selectNoteCard(note) {
     elements.btnResetTweet.removeAttribute('disabled');
     elements.btnCopyTweet.removeAttribute('disabled');
     elements.btnPublishTweet.removeAttribute('disabled');
+    elements.btnPublishLinkedIn.removeAttribute('disabled'); // Enable LinkedIn
     
-    // Generate prefilled tweet
-    generateAndSetTweet();
+    // Check if user has a custom draft for this card, otherwise generate pre-filled text
+    if (userDrafts[note.id] !== undefined) {
+        elements.tweetTextarea.value = userDrafts[note.id];
+        updateCharCounter();
+    } else {
+        generateAndSetTweet();
+        userDrafts[note.id] = elements.tweetTextarea.value; // Cache initial prefill
+    }
+    
     showToast("Composer populated with update", "info");
 }
 
@@ -322,13 +346,18 @@ function generateAndSetTweet() {
 // Reset Composer Text to default pre-filled template
 function resetTweetText() {
     if (!selectedNote) return;
+    delete userDrafts[selectedNote.id]; // Remove custom draft cache
     generateAndSetTweet();
+    userDrafts[selectedNote.id] = elements.tweetTextarea.value; // Store default
     showToast("Composer text reset to template", "info");
 }
 
 // Handle real-time manual input in the textarea
 function handleTweetTextareaInput() {
     updateCharCounter();
+    if (selectedNote) {
+        userDrafts[selectedNote.id] = elements.tweetTextarea.value; // Update draft cache
+    }
 }
 
 // Update the circular character counter indicator
@@ -352,11 +381,13 @@ function updateCharCounter() {
         elements.charCounterContainer.classList.add('danger');
         elements.charProgressCircle.style.stroke = '#f43f5e'; // Rose
         elements.btnPublishTweet.disabled = true;
+        elements.btnPublishLinkedIn.disabled = true;
         elements.btnCopyTweet.disabled = true;
     } else if (charCount >= 240) {
         elements.charCounterContainer.classList.remove('danger');
         elements.charProgressCircle.style.stroke = '#f59e0b'; // Amber warning
         elements.btnPublishTweet.disabled = false;
+        elements.btnPublishLinkedIn.disabled = false;
         elements.btnCopyTweet.disabled = false;
     } else {
         elements.charCounterContainer.classList.remove('danger');
@@ -643,4 +674,25 @@ function updateThemeIcon(theme) {
         elements.themeToggleBtn.setAttribute('title', 'Switch to Light Mode');
     }
     lucide.createIcons();
+}
+
+// Share on LinkedIn using standard feed compose intent
+function publishToLinkedIn() {
+    const text = elements.tweetTextarea.value;
+    if (!text || text.length > 280) return;
+    
+    const intentUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
+    window.open(intentUrl, '_blank', 'noopener,noreferrer');
+    showToast("Opening LinkedIn sharing page...", "success");
+}
+
+// Safe search text highlighting inside HTML tags
+function highlightSearchText(htmlContent, query) {
+    if (!query) return htmlContent;
+    const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`(<[^>]+>)|(${escapedQuery})`, 'gi');
+    return htmlContent.replace(regex, (match, tag, text) => {
+        if (tag) return tag; // Return HTML tag itself unchanged
+        return `<mark class="search-highlight">${text}</mark>`; // Wrap match in styling tag
+    });
 }
