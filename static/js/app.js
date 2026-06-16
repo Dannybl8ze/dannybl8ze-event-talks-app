@@ -16,6 +16,7 @@ const elements = {
     errorMessage: document.getElementById('error-message'),
     
     refreshBtn: document.getElementById('refresh-btn'),
+    exportCsvBtn: document.getElementById('export-csv-btn'),
     emptyResetBtn: document.getElementById('empty-reset-btn'),
     errorRetryBtn: document.getElementById('error-retry-btn'),
     
@@ -74,6 +75,7 @@ function bindEvents() {
     // Refresh buttons
     elements.refreshBtn.addEventListener('click', () => fetchReleaseNotes(true));
     elements.errorRetryBtn.addEventListener('click', () => fetchReleaseNotes(true));
+    elements.exportCsvBtn.addEventListener('click', exportToCSV);
     elements.emptyResetBtn.addEventListener('click', clearSearchAndFilters);
     
     // Search input
@@ -576,4 +578,37 @@ function showError(msg) {
     
     elements.statusText.textContent = "Sync failed";
     elements.statusIndicator.className = "status-indicator offline";
+}
+
+// Export currently filtered release notes to a CSV file
+function exportToCSV() {
+    if (filteredNotes.length === 0) {
+        showToast("No release notes available to export", "error");
+        return;
+    }
+    
+    const headers = ["Date", "Category", "URL", "Description"];
+    const rows = filteredNotes.map(note => [
+        note.date,
+        note.type,
+        note.link,
+        note.text
+    ]);
+    
+    const csvContent = [headers, ...rows]
+        .map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+        
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bigquery_release_notes_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast(`Exported ${filteredNotes.length} updates to CSV`, "success");
 }
