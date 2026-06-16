@@ -1,0 +1,38 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+bin/
+lib/
+include/
+pip-selfcheck.json
+
+# Flask/development instance folder
+instance/
+.webassets-cache
+
+# Environment variables & local configuration
+.env
+.flaskenv
+*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDEs/Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
