@@ -1174,3 +1174,112 @@ body {
         justify-content: space-between;
     }
 }
+
+/* Light Theme Variables & Component Overrides */
+:root[data-theme="light"] {
+    --bg-app: #f8fafc;
+    --bg-sidebar: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f8fafc;
+    --border-color: #e2e8f0;
+    --border-color-hover: #cbd5e1;
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    
+    --color-primary: #4f46e5;
+    --color-primary-hover: #4338ca;
+    --color-primary-glow: rgba(79, 70, 229, 0.15);
+    
+    --color-x: #0f172a;
+    --color-x-bg: #e2e8f0;
+    --color-x-hover: #cbd5e1;
+    
+    --shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+}
+
+/* Specific Light Mode overrides for components using hardcoded values */
+:root[data-theme="light"] #search-input {
+    background-color: rgba(15, 23, 42, 0.03);
+}
+
+:root[data-theme="light"] #search-input:focus {
+    background-color: rgba(15, 23, 42, 0.05);
+}
+
+:root[data-theme="light"] .category-btn:hover {
+    background-color: rgba(15, 23, 42, 0.03);
+}
+
+:root[data-theme="light"] .category-btn .count {
+    background-color: rgba(15, 23, 42, 0.05);
+    color: var(--text-muted);
+}
+
+:root[data-theme="light"] .main-header {
+    background-color: rgba(248, 250, 252, 0.85);
+}
+
+:root[data-theme="light"] .btn-secondary:hover {
+    background-color: rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="light"] .btn-secondary:disabled {
+    background-color: rgba(15, 23, 42, 0.01);
+}
+
+:root[data-theme="light"] .note-body code {
+    background-color: rgba(15, 23, 42, 0.05);
+    color: #0f172a;
+}
+
+:root[data-theme="light"] .note-card-actions {
+    border-top: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+:root[data-theme="light"] .btn-icon-text:hover {
+    background-color: rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="light"] .btn-icon:hover:not(:disabled) {
+    background-color: rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="light"] .note-card.selected {
+    background-color: rgba(99, 102, 241, 0.02);
+}
+
+:root[data-theme="light"] .progress-ring__circle-bg {
+    stroke: var(--border-color) !important;
+}
+
+:root[data-theme="light"] .composer-helpers .helper-chip {
+    background-color: var(--bg-card);
+}
+
+:root[data-theme="light"] .composer-helpers .helper-chip:hover {
+    background-color: var(--border-color);
+}
+
+:root[data-theme="light"] .toast {
+    background-color: #ffffff;
+    color: #0f172a;
+    border-color: #cbd5e1;
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1);
+}
+
+:root[data-theme="light"] .toast.success {
+    background-color: #ffffff;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+:root[data-theme="light"] .toast.error {
+    background-color: #ffffff;
+    border-color: rgba(244, 63, 94, 0.3);
+}
+
+:root[data-theme="light"] .toast.info {
+    background-color: #ffffff;
+    border-color: rgba(99, 102, 241, 0.3);
+}

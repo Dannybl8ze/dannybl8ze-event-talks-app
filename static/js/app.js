@@ -17,6 +17,8 @@ const elements = {
     
     refreshBtn: document.getElementById('refresh-btn'),
     exportCsvBtn: document.getElementById('export-csv-btn'),
+    themeToggleBtn: document.getElementById('theme-toggle'),
+    themeIcon: document.getElementById('theme-icon'),
     emptyResetBtn: document.getElementById('empty-reset-btn'),
     errorRetryBtn: document.getElementById('error-retry-btn'),
     
@@ -57,6 +59,7 @@ const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS; // ~62.8318
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
     // Setup UI components
+    initializeTheme();
     setupCircularProgress();
     bindEvents();
     
@@ -76,6 +79,7 @@ function bindEvents() {
     elements.refreshBtn.addEventListener('click', () => fetchReleaseNotes(true));
     elements.errorRetryBtn.addEventListener('click', () => fetchReleaseNotes(true));
     elements.exportCsvBtn.addEventListener('click', exportToCSV);
+    elements.themeToggleBtn.addEventListener('click', toggleTheme);
     elements.emptyResetBtn.addEventListener('click', clearSearchAndFilters);
     
     // Search input
@@ -611,4 +615,32 @@ function exportToCSV() {
     document.body.removeChild(link);
     
     showToast(`Exported ${filteredNotes.length} updates to CSV`, "success");
+}
+
+// Theme Management functions
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+    showToast(`Theme switched to ${newTheme} mode`, "info");
+}
+
+function updateThemeIcon(theme) {
+    if (theme === 'light') {
+        elements.themeIcon.setAttribute('data-lucide', 'moon');
+        elements.themeToggleBtn.setAttribute('title', 'Switch to Dark Mode');
+    } else {
+        elements.themeIcon.setAttribute('data-lucide', 'sun');
+        elements.themeToggleBtn.setAttribute('title', 'Switch to Light Mode');
+    }
+    lucide.createIcons();
 }
